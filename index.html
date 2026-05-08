@@ -1,0 +1,239 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Modern Attendance System</title>
+    <meta name="description" content="A premium web-based student attendance system">
+    <link rel="stylesheet" href="style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+    <!-- Background Elements -->
+    <div class="bg-blob blob-1"></div>
+    <div class="bg-blob blob-2"></div>
+    <div class="bg-blob blob-3"></div>
+
+    <div class="glass-container">
+        <!-- Toast Notification -->
+        <div id="toast" class="toast hidden"></div>
+
+        <!-- View: Home -->
+        <section id="view-home" class="view active">
+            <div class="hero">
+                <h1>Attendance<span class="gradient-text">Pro</span></h1>
+                <p>Manage and track student attendance seamlessly.</p>
+            </div>
+            <div class="role-selector">
+                <button class="btn btn-primary btn-large" onclick="app.showAdminLogin()">Admin Portal</button>
+                <button class="btn btn-secondary btn-large" onclick="app.showStudentPanel()">Student Portal</button>
+            </div>
+        </section>
+
+        <!-- View: Admin Login -->
+        <section id="view-admin-login" class="view">
+            <button class="btn btn-back" onclick="app.showHome()">← Back</button>
+            <h2>Admin Login</h2>
+            <form id="admin-login-form" class="glass-form" onsubmit="app.handleAdminLogin(event)">
+                <div class="input-group">
+                    <label for="admin-password">Password</label>
+                    <input type="password" id="admin-password" placeholder="Enter admin password (admin123)" required>
+                </div>
+                <button type="submit" class="btn btn-primary w-full">Login</button>
+            </form>
+        </section>
+
+        <!-- View: Admin Dashboard -->
+        <section id="view-admin-dashboard" class="view">
+            <div class="dashboard-header">
+                <h2>Admin <span class="gradient-text">Dashboard</span></h2>
+                <button class="btn btn-danger btn-small" onclick="app.logoutAdmin()">Logout</button>
+            </div>
+            <div class="tabs">
+                <button class="tab-btn active" onclick="app.switchAdminTab('mark')">Mark Attendance</button>
+                <button class="tab-btn" onclick="app.switchAdminTab('add')">Add Student</button>
+                <button class="tab-btn" onclick="app.switchAdminTab('delete')">Delete Student</button>
+                <button class="tab-btn" onclick="app.switchAdminTab('list')">All Students</button>
+                <button class="tab-btn" onclick="app.switchAdminTab('stats')">Statistics</button>
+                <button class="tab-btn" onclick="app.switchAdminTab('backup')">Backup</button>
+            </div>
+
+            <!-- Tab: Mark Attendance -->
+            <div id="tab-mark" class="tab-content active">
+                <h3>Mark Attendance</h3>
+                <form id="form-mark-attendance" class="glass-form" onsubmit="app.markAttendance(event)">
+                    <div class="input-group">
+                        <label for="mark-student">Select Student</label>
+                        <select id="mark-student" required></select>
+                    </div>
+                    <div class="input-group">
+                        <label for="mark-date">Date</label>
+                        <input type="date" id="mark-date" required>
+                    </div>
+                    <div class="subject-grid">
+                        <div class="subject-input">
+                            <label>Subject 1</label>
+                            <select id="sub-1"><option value="1">Present</option><option value="0">Absent</option></select>
+                        </div>
+                        <div class="subject-input">
+                            <label>Subject 2</label>
+                            <select id="sub-2"><option value="1">Present</option><option value="0">Absent</option></select>
+                        </div>
+                        <div class="subject-input">
+                            <label>Subject 3</label>
+                            <select id="sub-3"><option value="1">Present</option><option value="0">Absent</option></select>
+                        </div>
+                        <div class="subject-input">
+                            <label>Subject 4</label>
+                            <select id="sub-4"><option value="1">Present</option><option value="0">Absent</option></select>
+                        </div>
+                        <div class="subject-input">
+                            <label>Subject 5</label>
+                            <select id="sub-5"><option value="1">Present</option><option value="0">Absent</option></select>
+                        </div>
+                        <div class="subject-input">
+                            <label>Subject 6</label>
+                            <select id="sub-6"><option value="1">Present</option><option value="0">Absent</option></select>
+                        </div>
+                    </div>
+                    <button type="submit" class="btn btn-primary w-full mt-4">Submit Attendance</button>
+                </form>
+            </div>
+
+            <!-- Tab: Add Student -->
+            <div id="tab-add" class="tab-content">
+                <h3>Add New Student</h3>
+                <form id="form-add-student" class="glass-form" onsubmit="app.addStudent(event)">
+                    <div class="input-group">
+                        <label for="new-student-name">Student Name</label>
+                        <input type="text" id="new-student-name" placeholder="Enter name without numbers" required pattern="[A-Za-z\s]+" title="Letters and spaces only">
+                    </div>
+                    <button type="submit" class="btn btn-primary w-full">Add Student</button>
+                </form>
+            </div>
+
+            <!-- Tab: Delete Student -->
+            <div id="tab-delete" class="tab-content">
+                <h3>Delete Student</h3>
+                <form id="form-delete-student" class="glass-form" onsubmit="app.deleteStudent(event)">
+                    <div class="input-group">
+                        <label for="delete-student-id">Student Roll Number</label>
+                        <input type="number" id="delete-student-id" placeholder="Enter roll number to delete" required>
+                    </div>
+                    <button type="submit" class="btn btn-danger w-full">Delete Student</button>
+                </form>
+            </div>
+
+            <!-- Tab: Display All Students -->
+            <div id="tab-list" class="tab-content">
+                <h3>All Students</h3>
+                <div class="table-container">
+                    <table id="students-table">
+                        <thead>
+                            <tr>
+                                <th>Roll No</th>
+                                <th>Name</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <!-- Populated dynamically -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Tab: Check Attendance (Total & Date) -->
+            <div id="tab-stats" class="tab-content">
+                <h3>Check Student Attendance</h3>
+                <div class="dashboard-grid">
+                    <form id="form-check-total" class="glass-form mini" onsubmit="app.adminCheckTotalAttendance(event)">
+                        <h4>Total by Roll No</h4>
+                        <div class="input-group">
+                            <input type="number" id="check-total-rollno" placeholder="Roll No" required>
+                        </div>
+                        <button type="submit" class="btn btn-primary w-full">Check Total</button>
+                    </form>
+                    
+                    <form id="form-check-date" class="glass-form mini" onsubmit="app.adminCheckDateAttendance(event)">
+                        <h4>By Date</h4>
+                        <div class="input-group">
+                            <input type="number" id="check-date-rollno" placeholder="Roll No" required>
+                            <input type="date" id="check-date" required>
+                        </div>
+                        <button type="submit" class="btn btn-primary w-full">Check Date</button>
+                    </form>
+                </div>
+                <div id="admin-stats-result" class="stats-result mt-4"></div>
+            </div>
+
+            <!-- Tab: Backup Data -->
+            <div id="tab-backup" class="tab-content">
+                <h3>Data Backup & Restore</h3>
+                <div class="dashboard-grid mt-4">
+                    <div class="glass-form mini" style="text-align: center;">
+                        <h4 style="margin-bottom: 0.5rem;">Export Data</h4>
+                        <p style="color: var(--text-muted); font-size: 0.9rem; margin-bottom: 1.5rem;">Save a local copy of all students and attendance records.</p>
+                        <button class="btn btn-primary w-full" onclick="app.exportData()">Export to JSON</button>
+                    </div>
+                    
+                    <div class="glass-form mini" style="text-align: center;">
+                        <h4 style="margin-bottom: 0.5rem;">Import Data</h4>
+                        <p style="color: var(--text-muted); font-size: 0.9rem; margin-bottom: 1.5rem;">Restore records from a previously exported backup file.</p>
+                        <input type="file" id="import-file" accept=".json" class="hidden" onchange="app.handleFileSelect(event)">
+                        <button class="btn btn-secondary w-full" onclick="document.getElementById('import-file').click()" id="btn-import-select">Select JSON File</button>
+                        <button class="btn btn-danger w-full hidden" onclick="app.importData()" id="btn-import-confirm">Confirm Import</button>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- View: Student Dashboard -->
+        <section id="view-student-dashboard" class="view">
+            <button class="btn btn-back" onclick="app.showHome()">← Back</button>
+            <div class="dashboard-header">
+                <h2>Student <span class="gradient-text">Portal</span></h2>
+            </div>
+            <div class="dashboard-grid mt-4">
+                <form id="form-student-check-total" class="glass-form mini" onsubmit="app.studentCheckTotalAttendance(event)">
+                    <h4>Check Total Attendance</h4>
+                    <div class="input-group">
+                        <label for="student-total-rollno">Roll Number</label>
+                        <input type="number" id="student-total-rollno" placeholder="Enter your roll No" required>
+                    </div>
+                    <button type="submit" class="btn btn-primary w-full">View Total</button>
+                </form>
+                
+                <form id="form-student-check-date" class="glass-form mini" onsubmit="app.studentCheckDateAttendance(event)">
+                    <h4>Check Attendance by Date</h4>
+                    <div class="input-group">
+                        <label for="student-date-rollno">Roll Number</label>
+                        <input type="number" id="student-date-rollno" placeholder="Enter your roll No" required>
+                    </div>
+                    <div class="input-group">
+                        <label for="student-check-date">Date</label>
+                        <input type="date" id="student-check-date" required>
+                    </div>
+                    <button type="submit" class="btn btn-primary w-full">View Date</button>
+                </form>
+            </div>
+            <div id="student-stats-result" class="stats-result mt-4 glass-panel hidden"></div>
+        </section>
+
+        <!-- Confirmation Modal -->
+        <div id="modal-confirm" class="modal-overlay hidden">
+            <div class="modal-content glass-form">
+                <h3 id="modal-title">Confirm Action</h3>
+                <p id="modal-desc" style="color: var(--text-muted); margin: 1rem 0;">Are you sure you want to proceed?</p>
+                <div class="modal-actions" style="display: flex; gap: 1rem; justify-content: flex-end;">
+                    <button class="btn" style="background: rgba(255,255,255,0.1);" onclick="app.closeModal()">Cancel</button>
+                    <button class="btn btn-danger" id="modal-confirm-btn">Yes, proceed</button>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <script src="app.js"></script>
+</body>
+</html>
