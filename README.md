@@ -63,8 +63,6 @@ Both versions are independent and demonstrate different approaches to solving st
 * HTML5
 * CSS3
 * JavaScript
-* Chart.js
-* Browser LocalStorage
 
 ---
 
